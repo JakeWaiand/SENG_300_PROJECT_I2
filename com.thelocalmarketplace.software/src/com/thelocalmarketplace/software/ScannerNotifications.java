@@ -24,6 +24,10 @@ public class ScannerNotifications implements BarcodeScannerListener {
             - Implement block/unblock session
          */
 
+        // i think implementing the checkout lock/unlock like below should work?
+        // check if checkout is locked
+        // if locked -> ignore scan
+        // if unlocked -> do logic below
         session.startAdding();
 
         if (session.getSessionState() == Session.ADDING_ITEM) {
