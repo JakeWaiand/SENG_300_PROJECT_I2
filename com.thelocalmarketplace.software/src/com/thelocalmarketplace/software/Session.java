@@ -16,8 +16,13 @@ public class Session {
     public static final int REMOVING_ITEM = 4;
     public static final int PAY_FOR_BILL = 5;
 
+    // constants for checkout state
+    public static final boolean LOCK = true;
+    public static final boolean UNLOCK = false;
+    
     // default variables
     private static int sessionState = SESSION_INACTIVE;
+    private static boolean checkoutState = LOCK;
     private static Mass totalExpectedWeight = Mass.ZERO;
     private static boolean addBagsSelected = false; 		// flag for "add own bags" feature
 
@@ -30,6 +35,7 @@ public class Session {
     public void startSession() {
         if (sessionState == SESSION_INACTIVE) {
             sessionState = BILL_EMPTY;
+            checkoutState = UNLOCK;
         }
         // else, do not transition
     }
@@ -44,6 +50,7 @@ public class Session {
     public void doneAdding() {
         if (sessionState == ADDING_ITEM) {
             sessionState = BILL_NOT_EMPTY;
+            checkoutState = UNLOCK;
         }
         // else, do not transition
     }
@@ -52,6 +59,7 @@ public class Session {
     public void startRemoving(BarcodedProduct product) {
         if (sessionState == BILL_NOT_EMPTY) {
             sessionState = REMOVING_ITEM;
+            checkoutState = LOCK;
 
             /*
              * TODO: add "remove item" logic
@@ -71,8 +79,10 @@ public class Session {
     public void doneRemoving() {
         if (sessionState == REMOVING_ITEM && record.getBillItemCount() > 0) {
             sessionState = BILL_NOT_EMPTY;
+            checkoutState = UNLOCK;
         } else if (sessionState == REMOVING_ITEM && record.getBillItemCount() == 0) {
             sessionState = BILL_EMPTY;
+            checkoutState = UNLOCK;
         }
         // else, do not transition
     }
@@ -117,6 +127,7 @@ public class Session {
     public void endSession() {
         if (sessionState == PAY_FOR_BILL) {
             sessionState = SESSION_INACTIVE;
+            checkoutState = LOCK;
 
             // clear everything back to default state
             totalExpectedWeight = Mass.ZERO;
@@ -128,7 +139,15 @@ public class Session {
         // else, do not transition
     }
 
+    // methods that modify checkout state
+    public void lockCheckout() {
+        checkoutState = LOCK;
+    }
 
+    public void unlockCheckout() {
+        checkoutState = UNLOCK;
+    }
+    
     // method that modify expected weight
     public void addToTotalExpectedWeight(BarcodedProduct product) {
         // convert product weight of type double into Mass type
