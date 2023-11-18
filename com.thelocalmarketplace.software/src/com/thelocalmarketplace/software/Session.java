@@ -123,6 +123,12 @@ public class Session {
         // else, ignore pay request
     }
 
+    public void printReceipt() {
+		if (sessionState == PAY_FOR_BILL && record.getAmountOwed() == new BigDecimal("0")) {
+			sessionState = PRINTING_RECEIPT;
+		}
+		// else, do not transition
+	}
 
     public void endSession() {
         if (sessionState == PAY_FOR_BILL) {
