@@ -1,7 +1,3 @@
-Based on the structure of the software and software testing directories in your project, here's a draft for the README file that covers these sections:
-
----
-
 # SENG300 Group Project - Software & Software Testing Directories
 
 This README provides an overview of the contents found in the `software` and `software testing` directories of the SENG300 Group Project. These directories contain the main application code and the associated unit tests.
