@@ -20,36 +20,28 @@ public class ScannerNotifications implements BarcodeScannerListener {
     @Override
     public void aBarcodeHasBeenScanned(IBarcodeScanner barcodeScanner, Barcode barcode) {
 
-        /* TODO:
-            - Implement block/unblock session
-         */
+        if (session.getCheckoutState() == Session.UNLOCK) {
 
-        // i think implementing the checkout lock/unlock like below should work?
-        // check if checkout is locked
-        // if locked -> ignore scan
-        // if unlocked -> do logic below
-        session.startAdding();
+            session.lockCheckout();
+            session.startAdding();
 
-        if (session.getSessionState() == Session.ADDING_ITEM) {
+            if (session.getSessionState() == Session.ADDING_ITEM) {
 
-            BarcodedProduct product = database.get(barcode);
+                BarcodedProduct product = database.get(barcode);
 
 //            BarcodedItem item = new BarcodedItem(product.getBarcode(), new Mass(product.getExpectedWeight()));
 
-            if (product != null) {
-                session.record.addToBill(product);
-                session.record.addToTotalPrice(product);
-                session.addToTotalExpectedWeight(product);
+                if (product != null) {
+                    session.record.addToBill(product);
+                    session.record.addToTotalPrice(product);
+                    session.addToTotalExpectedWeight(product);
 
-                // signal to customer to place item in bagging area
-                System.out.println("Please place the scanned item in the bagging area.");
+                    // signal to customer to place item in bagging area
+                    System.out.println("Please place the scanned item in the bagging area.");
 
-                System.out.println(product.getDescription() + " was added to bagging area");
-
-                session.doneAdding();
-
-            } else {
-                System.out.println("No such product in database");
+                } else {
+                    System.out.println("No such product in database");
+                }
             }
         }
 

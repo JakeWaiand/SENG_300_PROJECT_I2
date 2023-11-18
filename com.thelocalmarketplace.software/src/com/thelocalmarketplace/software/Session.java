@@ -216,6 +216,10 @@ public class Session {
         return sessionState;
     }
 
+    public boolean getCheckoutState() {
+        return checkoutState;
+    }
+    
     public Mass getTotalExpectedWeight() {
         return totalExpectedWeight;
     }
