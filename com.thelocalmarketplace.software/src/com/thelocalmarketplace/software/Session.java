@@ -89,6 +89,7 @@ public class Session {
         // else, do not transition
     }
 
+    // since no GUI, method simulates when a customer chooses to pay for bill	
     public void pay(long totalPrice, int paymentType) {
         if (sessionState == BILL_NOT_EMPTY) {
             sessionState = PAY_FOR_BILL;
@@ -133,7 +134,7 @@ public class Session {
     }
 
     public void endSession() {
-	// assuming a receipt is printed for every session 
+    	// assuming a receipt is printed for every session 
         if (sessionState == PRINTING_RECEIPT) {
             sessionState = SESSION_INACTIVE;
             checkoutState = LOCK;
@@ -165,8 +166,9 @@ public class Session {
         totalExpectedWeight = productExpectedWeight.sum(totalExpectedWeight);
     }
 
+    // updates total expected weight to the given mass
     public void updateTotalExpectedWeight(Mass mass) {
-    	totalExpectedWeight = mass.sum(totalExpectedWeight);
+    	totalExpectedWeight = mass;
     }
     
     // methods for dealing with bagging options
