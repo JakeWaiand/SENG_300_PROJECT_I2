@@ -59,7 +59,7 @@ public class Session {
 
     // since no GUI, method simulates when a customer chooses to remove an item
     public void startRemoving(BarcodedProduct product) {
-        if (sessionState == BILL_NOT_EMPTY) {
+        if (sessionState == BILL_NOT_EMPTY && checkoutState == UNLOCK) {
             sessionState = REMOVING_ITEM;
             checkoutState = LOCK;
 
@@ -91,7 +91,7 @@ public class Session {
 
     // since no GUI, method simulates when a customer chooses to pay for bill	
     public void pay(long totalPrice, int paymentType) {
-        if (sessionState == BILL_NOT_EMPTY) {
+        if (sessionState == BILL_NOT_EMPTY && checkoutState == UNLOCK) {
             sessionState = PAY_FOR_BILL;
 
             // set payment type
