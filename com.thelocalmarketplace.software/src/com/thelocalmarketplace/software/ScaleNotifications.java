@@ -8,8 +8,8 @@ import com.jjjwelectronics.scale.IElectronicScale;
 
 public class ScaleNotifications implements ElectronicScaleListener{
 	
-	boolean scaleEnabled = false;
-	boolean scaleTurnedOn = false;
+	private boolean scaleEnabled = false;
+	private boolean scaleTurnedOn = false;
 	
 	Session session = new Session();
 	
@@ -133,6 +133,8 @@ public class ScaleNotifications implements ElectronicScaleListener{
 	
 	private void weightDiscrepancyByIncorrectAction(Mass actualMass) {
 		
+		session.lockCheckout();
+		
 		switch (compareWeight(actualMass)) {
 			case -1: // actual < expected weight
 				System.out.println("There is a weight discrepancy.");
@@ -143,6 +145,7 @@ public class ScaleNotifications implements ElectronicScaleListener{
 				System.out.println("Please remove unexpected item from the bagging area.");
 				break;
 			default: // actual == expected weight
+				session.unlockCheckout();
 				System.out.println("There is no longer a weight discrepancy. Please continue.");
 		}
 	}
