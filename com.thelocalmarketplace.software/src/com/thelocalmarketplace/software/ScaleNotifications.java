@@ -49,7 +49,6 @@ public class ScaleNotifications implements ElectronicScaleListener{
 				// compare actual (mass) to expected weight
 				if (compareWeight(mass) == 0) {
 					session.doneAdding();
-					session.unlockCheckout();
 				} else {
 					weightDiscrepancyDuringAction(mass);	
 				}
@@ -58,7 +57,6 @@ public class ScaleNotifications implements ElectronicScaleListener{
 				// compare actual (mass) to expected weight
 				if (compareWeight(mass) == 0) {
 					session.doneRemoving();
-					session.unlockCheckout();
 				} else {
 					weightDiscrepancyDuringAction(mass);				
 				}
@@ -77,7 +75,7 @@ public class ScaleNotifications implements ElectronicScaleListener{
 					// implement bags too heavy use case here
 					// - if weight differs from allowable range, get attendant approves weight discrepancy
 					
-					// update current actual weight to total expected weight
+					// update total expected weight with current mass
 					session.updateTotalExpectedWeight(mass);
 					
 					// reset addBagsSelected flag
@@ -86,9 +84,8 @@ public class ScaleNotifications implements ElectronicScaleListener{
 					// signal to customer they can continue
 					System.out.println("You may now continue.");
 				} else {
-					weightDiscrepancyIncorrectAction(mass);
+					weightDiscrepancyByIncorrectAction(mass);
 				}
-				break;
 			}
 		
 	}
@@ -123,21 +120,30 @@ public class ScaleNotifications implements ElectronicScaleListener{
 		// signal to customer & attendant
 		System.out.println("There is a weight discrepancy.");
 		
-		if (compareWeight(actualMass) == -1) { // actual < expected weight
-			System.out.println("Please add item to the bagging area.");
-		} else { // actual > expected weight
-			System.out.println("Please remove item from the bagging area.");
+		switch (compareWeight(actualMass)) {
+			case -1: // actual < expected weight
+				System.out.println("Please add item to the bagging area.");
+				break;
+			case 1: // actual > expected weight
+				System.out.println("Please remove item from the bagging area.");
+				break;
 		}
+		
 	}
 	
-	private void weightDiscrepancyIncorrectAction(Mass actualMass) {
-		// signal to customer
-		System.out.println("There is a weight discrepancy.");
+	private void weightDiscrepancyByIncorrectAction(Mass actualMass) {
 		
-		if (compareWeight(actualMass) == -1) { // actual < expected weight
-			System.out.println("Please return item to the bagging area.");
-		} else { // actual > expected weight
-			System.out.println("Please remove unexpected item from the bagging area.");
+		switch (compareWeight(actualMass)) {
+			case -1: // actual < expected weight
+				System.out.println("There is a weight discrepancy.");
+				System.out.println("Please return item to the bagging area.");
+				break;
+			case 1: // actual > expected weight
+				System.out.println("There is a weight discrepancy.");
+				System.out.println("Please remove unexpected item from the bagging area.");
+				break;
+			default: // actual == expected weight
+				System.out.println("There is no longer a weight discrepancy. Please continue.");
 		}
 	}
 }
