@@ -49,7 +49,6 @@ public class ScaleNotifications implements ElectronicScaleListener{
 				// compare actual (mass) to expected weight
 				if (compareWeight(mass) == 0) {
 					session.doneAdding();
-					session.unlockCheckout();
 				} else {
 					weightDiscrepancyDuringAction(mass);	
 				}
@@ -58,7 +57,6 @@ public class ScaleNotifications implements ElectronicScaleListener{
 				// compare actual (mass) to expected weight
 				if (compareWeight(mass) == 0) {
 					session.doneRemoving();
-					session.unlockCheckout();
 				} else {
 					weightDiscrepancyDuringAction(mass);				
 				}
