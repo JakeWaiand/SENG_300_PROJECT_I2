@@ -164,6 +164,10 @@ public class Session {
         totalExpectedWeight = productExpectedWeight.sum(totalExpectedWeight);
     }
 
+    public void updateTotalExpectedWeight(Mass mass) {
+    	totalExpectedWeight = mass.sum(totalExpectedWeight);
+    }
+    
     // methods for dealing with bagging options
 
     // since no GUI, method simulates when a customer chooses "add own bags"
