@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Mass.MassDifference;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
+import java.math.BigDecimal;
 
 public class Session {
 
