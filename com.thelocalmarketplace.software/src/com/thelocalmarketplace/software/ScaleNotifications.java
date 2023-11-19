@@ -120,21 +120,30 @@ public class ScaleNotifications implements ElectronicScaleListener{
 		// signal to customer & attendant
 		System.out.println("There is a weight discrepancy.");
 		
-		if (compareWeight(actualMass) == -1) { // actual < expected weight
-			System.out.println("Please add item to the bagging area.");
-		} else { // actual > expected weight
-			System.out.println("Please remove item from the bagging area.");
+		switch (compareWeight(actualMass)) {
+			case -1: // actual < expected weight
+				System.out.println("Please add item to the bagging area.");
+				break;
+			case 1: // actual > expected weight
+				System.out.println("Please remove item from the bagging area.");
+				break;
 		}
+		
 	}
 	
 	private void weightDiscrepancyIncorrectAction(Mass actualMass) {
-		// signal to customer
-		System.out.println("There is a weight discrepancy.");
 		
-		if (compareWeight(actualMass) == -1) { // actual < expected weight
-			System.out.println("Please return item to the bagging area.");
-		} else { // actual > expected weight
-			System.out.println("Please remove unexpected item from the bagging area.");
+		switch (compareWeight(actualMass)) {
+			case -1: // actual < expected weight
+				System.out.println("There is a weight discrepancy.");
+				System.out.println("Please return item to the bagging area.");
+				break;
+			case 1: // actual > expected weight
+				System.out.println("There is a weight discrepancy.");
+				System.out.println("Please remove unexpected item from the bagging area.");
+				break;
+			default: // actual == expected weight
+				System.out.println("There is no longer a weight discrepancy. Please continue.");
 		}
 	}
 }
