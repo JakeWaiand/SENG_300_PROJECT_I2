@@ -84,7 +84,7 @@ public class ScaleNotifications implements ElectronicScaleListener{
 					// signal to customer they can continue
 					System.out.println("You may now continue.");
 				} else {
-					weightDiscrepancyIncorrectAction(mass);
+					weightDiscrepancyByIncorrectAction(mass);
 				}
 			}
 		
@@ -131,7 +131,7 @@ public class ScaleNotifications implements ElectronicScaleListener{
 		
 	}
 	
-	private void weightDiscrepancyIncorrectAction(Mass actualMass) {
+	private void weightDiscrepancyByIncorrectAction(Mass actualMass) {
 		
 		switch (compareWeight(actualMass)) {
 			case -1: // actual < expected weight
