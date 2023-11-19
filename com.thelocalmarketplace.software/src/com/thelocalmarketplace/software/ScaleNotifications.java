@@ -45,51 +45,51 @@ public class ScaleNotifications implements ElectronicScaleListener{
 	public void theMassOnTheScaleHasChanged(IElectronicScale scale, Mass mass) {
 		
 		switch(session.getSessionState()) {
-		case Session.ADDING_ITEM:
-			// compare actual (mass) to expected weight
-			if (compareWeight(mass) == 0) {
-				session.doneAdding();
-				session.unlockCheckout();
-			} else {
-				weightDiscrepancyDuringAction(mass);	
-			}
-			break;
-		case Session.REMOVING_ITEM:
-			// compare actual (mass) to expected weight
-			if (compareWeight(mass) == 0) {
-				session.doneRemoving();
-				session.unlockCheckout();
-			} else {
-				weightDiscrepancyDuringAction(mass);				
-			}
-			break;
-		case Session.SESSION_INACTIVE:
-			// do nothing
-			break;
-		default:
-			// this point is reached when: 
-			// 1. customer selected add own bag and has placed their bag in the bagging area
-			// or the following incorrect actions occur:
-			// 2. session started, customer placed item into bagging area without adding item
-			// 3. session started, customer removed an item without choosing the remove option
-			
-			if (session.isAddBagsSelected() == true) {	
-				// implement bags too heavy use case here
-				// - if weight differs from allowable range, get attendant approves weight discrepancy
+			case Session.ADDING_ITEM:
+				// compare actual (mass) to expected weight
+				if (compareWeight(mass) == 0) {
+					session.doneAdding();
+					session.unlockCheckout();
+				} else {
+					weightDiscrepancyDuringAction(mass);	
+				}
+				break;
+			case Session.REMOVING_ITEM:
+				// compare actual (mass) to expected weight
+				if (compareWeight(mass) == 0) {
+					session.doneRemoving();
+					session.unlockCheckout();
+				} else {
+					weightDiscrepancyDuringAction(mass);				
+				}
+				break;
+			case Session.SESSION_INACTIVE:
+				// do nothing
+				break;
+			default:
+				// this point is reached when: 
+				// 1. customer selected add own bag and has placed their bag in the bagging area
+				// or the following incorrect actions occur:
+				// 2. session started, customer placed item into bagging area without adding item
+				// 3. session started, customer removed an item without choosing the remove option
 				
-				// update current actual weight to total expected weight
-				session.updateTotalExpectedWeight(mass);
-				
-				// reset addBagsSelected flag
-				session.doneAddBags();
-				
-				// signal to customer they can continue
-				System.out.println("You may now continue.");
-			} else {
-				weightDiscrepancyIncorrectAction(mass);
+				if (session.isAddBagsSelected() == true) {	
+					// implement bags too heavy use case here
+					// - if weight differs from allowable range, get attendant approves weight discrepancy
+					
+					// update current actual weight to total expected weight
+					session.updateTotalExpectedWeight(mass);
+					
+					// reset addBagsSelected flag
+					session.doneAddBags();
+					
+					// signal to customer they can continue
+					System.out.println("You may now continue.");
+				} else {
+					weightDiscrepancyIncorrectAction(mass);
+				}
+				break;
 			}
-			break;
-		}
 		
 	}
 
