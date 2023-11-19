@@ -75,7 +75,7 @@ public class ScaleNotifications implements ElectronicScaleListener{
 					// implement bags too heavy use case here
 					// - if weight differs from allowable range, get attendant approves weight discrepancy
 					
-					// update current actual weight to total expected weight
+					// update total expected weight with current mass
 					session.updateTotalExpectedWeight(mass);
 					
 					// reset addBagsSelected flag
