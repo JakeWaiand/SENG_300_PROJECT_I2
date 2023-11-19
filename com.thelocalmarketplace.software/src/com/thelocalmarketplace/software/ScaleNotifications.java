@@ -111,11 +111,11 @@ public class ScaleNotifications implements ElectronicScaleListener{
 	}
 
 	// getter methods
-	public boolean getScaleStatus() {
+	public boolean isScaleEnabled() {
 		return scaleStatus;
 	}
 	
-	public boolean getScalePower() {
+	public boolean isScaleTurnedOn() {
 		return scalePower;
 	}
 	
