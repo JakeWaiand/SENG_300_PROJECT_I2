@@ -49,31 +49,32 @@ public class ScaleNotifications implements ElectronicScaleListener{
 	@Override
 	public void theMassOnTheScaleHasChanged(IElectronicScale scale, Mass mass) {
 		
-		if (session.getSessionState() == Session.ADDING_ITEM || session.getSessionState() == Session.REMOVING_ITEM) {
-			
+		switch(session.getSessionState()) {
+		case Session.ADDING_ITEM:
 			// compare actual (mass) to expected weight
-			if (mass.compareTo(session.getTotalExpectedWeight()) == 0) { 
-				// no weight discrepancy, item is added to order
-				// i.e. session state updated to BILL_NOT_EMPTY
+			if (compareWeight(mass) == 0) {
 				session.doneAdding();
-				
-				// unblock checkout for next interaction
 				session.unlockCheckout();
-				
-			} else { // actual != expected weight
-				// signal to customer & attendant
-				System.out.println("There is a weight discrepancy.");
-				
-				if (mass.compareTo(session.getTotalExpectedWeight()) == -1) { // actual < expected weight
-					System.out.println("Please add item to the bagging area.");
-				} else { // actual > expected weight
-					System.out.println("Please remove item from the bagging area.");
-				}
+			} else {
+				weightDiscrepancyDuringAction(mass);	
 			}
-			
-		} else {
+			break;
+		case Session.REMOVING_ITEM:
+			// compare actual (mass) to expected weight
+			if (compareWeight(mass) == 0) {
+				session.doneRemoving();
+				session.unlockCheckout();
+			} else {
+				weightDiscrepancyDuringAction(mass);				
+			}
+			break;
+		case Session.SESSION_INACTIVE:
+			// do nothing
+			break;
+		default:
 			// this point is reached when: 
 			// 1. customer selected add own bag and has placed their bag in the bagging area
+			// or the following incorrect actions occur:
 			// 2. session started, customer placed item into bagging area without adding item
 			// 3. session started, customer removed an item without choosing the remove option
 			
@@ -89,22 +90,10 @@ public class ScaleNotifications implements ElectronicScaleListener{
 				
 				// signal to customer they can continue
 				System.out.println("You may now continue.");
-				
-			} else if (session.getSessionState() == Session.SESSION_INACTIVE) {
-				// session is not active -> ignore change of mass
-				
 			} else {
-				
-				// signal to customer
-				System.out.println("There is a weight discrepancy.");
-				
-				if (mass.compareTo(session.getTotalExpectedWeight()) == -1) { // actual < expected weight
-					System.out.println("Please return item to the bagging area.");
-				} else { // actual > expected weight
-					System.out.println("Please remove unexpected item from the bagging area.");
-				}
+				weightDiscrepancyIncorrectAction(mass);
 			}
-				
+			break;
 		}
 		
 	}
@@ -121,4 +110,39 @@ public class ScaleNotifications implements ElectronicScaleListener{
 		
 	}
 
+	// getter methods
+	public boolean getScaleStatus() {
+		return scaleStatus;
+	}
+	
+	public boolean getScalePower() {
+		return scalePower;
+	}
+	
+	// helper methods
+	private int compareWeight(Mass actualMass) {
+		return actualMass.compareTo(session.getTotalExpectedWeight());
+	}
+	
+	private void weightDiscrepancyDuringAction(Mass actualMass) {
+		// signal to customer & attendant
+		System.out.println("There is a weight discrepancy.");
+		
+		if (compareWeight(actualMass) == -1) { // actual < expected weight
+			System.out.println("Please add item to the bagging area.");
+		} else { // actual > expected weight
+			System.out.println("Please remove item from the bagging area.");
+		}
+	}
+	
+	private void weightDiscrepancyIncorrectAction(Mass actualMass) {
+		// signal to customer
+		System.out.println("There is a weight discrepancy.");
+		
+		if (compareWeight(actualMass) == -1) { // actual < expected weight
+			System.out.println("Please return item to the bagging area.");
+		} else { // actual > expected weight
+			System.out.println("Please remove unexpected item from the bagging area.");
+		}
+	}
 }
