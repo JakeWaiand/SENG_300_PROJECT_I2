@@ -126,10 +126,10 @@ public class Session {
     }
 
     public void printReceipt() {
-		if (sessionState == PAY_FOR_BILL && record.getAmountOwed() == new BigDecimal("0")) {
-			sessionState = PRINTING_RECEIPT;
-		}
-		// else, do not transition
+	if (sessionState == PAY_FOR_BILL && record.getAmountOwed() == new BigDecimal("0")) {
+		sessionState = PRINTING_RECEIPT;
+	}
+	// else, do not transition
 	}
 
     public void endSession() {
