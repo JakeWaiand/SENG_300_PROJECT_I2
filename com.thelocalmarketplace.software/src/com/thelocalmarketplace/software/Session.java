@@ -15,6 +15,7 @@ public class Session {
     public static final int ADDING_ITEM = 3;
     public static final int REMOVING_ITEM = 4;
     public static final int PAY_FOR_BILL = 5;
+    public static final int PRINTING_RECEIPT = 6;
 
     // constants for checkout state
     public static final boolean LOCK = true;
