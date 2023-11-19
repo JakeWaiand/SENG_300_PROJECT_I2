@@ -128,9 +128,9 @@ public class Session {
     public void printReceipt() {
 	if (sessionState == PAY_FOR_BILL && record.getAmountOwed() == new BigDecimal("0")) {
 		sessionState = PRINTING_RECEIPT;
-	}
-	// else, do not transition
-	}
+		}
+		// else, do not transition
+    }
 
     public void endSession() {
 	// assuming a receipt is printed for every session 
@@ -219,7 +219,7 @@ public class Session {
 
             // re-allow customer interaction
             sessionState = BILL_NOT_EMPTY;
-	    checkoutState = UNLOCK;
+            checkoutState = UNLOCK;
         }
         // else, do nothing
 
