@@ -88,7 +88,6 @@ public class ScaleNotifications implements ElectronicScaleListener{
 				} else {
 					weightDiscrepancyIncorrectAction(mass);
 				}
-				break;
 			}
 		
 	}
