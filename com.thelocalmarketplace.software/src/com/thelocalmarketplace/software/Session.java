@@ -218,6 +218,7 @@ public class Session {
 
             // re-allow customer interaction
             sessionState = BILL_NOT_EMPTY;
+	    checkoutState = UNLOCK;
         }
         // else, do nothing
 
