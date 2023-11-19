@@ -7,42 +7,37 @@ import com.jjjwelectronics.scale.ElectronicScaleListener;
 import com.jjjwelectronics.scale.IElectronicScale;
 
 public class ScaleNotifications implements ElectronicScaleListener{
-
-	private static final boolean ENABLE = true;
-	private static final boolean DISABLE = false;
-	private static final boolean ON = true;
-	private static final boolean OFF = false;
 	
-	boolean scaleStatus = DISABLE;
-	boolean scalePower = OFF;
+	boolean scaleEnabled = false;
+	boolean scaleTurnedOn = false;
 	
 	Session session = new Session();
 	
 	@Override
 	public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
 		//System.out.println("Scale enabled");
-		scaleStatus = ENABLE;
+		scaleEnabled = true;
 		
 	}
 
 	@Override
 	public void aDeviceHasBeenDisabled(IDevice<? extends IDeviceListener> device) {
 		//System.out.println("Scale disabled");
-		scaleStatus = DISABLE;
+		scaleEnabled = false;
 		
 	}
 
 	@Override
 	public void aDeviceHasBeenTurnedOn(IDevice<? extends IDeviceListener> device) {
 		//System.out.println("Scale turned on");
-		scalePower = ON;	
+		scaleTurnedOn = true;	
 		
 	}
 
 	@Override
 	public void aDeviceHasBeenTurnedOff(IDevice<? extends IDeviceListener> device) {
 		//System.out.println("Scale turned off");
-		scalePower = OFF;
+		scaleTurnedOn = false;
 		
 	}
 
@@ -112,11 +107,11 @@ public class ScaleNotifications implements ElectronicScaleListener{
 
 	// getter methods
 	public boolean isScaleEnabled() {
-		return scaleStatus;
+		return scaleEnabled;
 	}
 	
 	public boolean isScaleTurnedOn() {
-		return scalePower;
+		return scaleTurnedOn;
 	}
 	
 	// helper methods
