@@ -133,7 +133,8 @@ public class Session {
 	}
 
     public void endSession() {
-        if (sessionState == PAY_FOR_BILL) {
+	// assuming a receipt is printed for every session 
+        if (sessionState == PRINTING_RECEIPT) {
             sessionState = SESSION_INACTIVE;
             checkoutState = LOCK;
 
