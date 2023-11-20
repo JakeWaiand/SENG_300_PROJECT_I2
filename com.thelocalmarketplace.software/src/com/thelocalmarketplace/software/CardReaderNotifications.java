@@ -23,6 +23,7 @@ public class CardReaderNotifications implements CardReaderListener {
 			if (transactionPosted) {
 				totalPrice = 0;
 				return totalPrice;
+				//returns updated price
 			}
 		}
 		return totalPrice;
