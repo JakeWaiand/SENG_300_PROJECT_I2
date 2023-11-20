@@ -41,8 +41,6 @@
 
 package com.thelocalmarketplace.software;
 
-import java.util.ArrayList;
-
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Mass.MassDifference;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
