@@ -176,6 +176,14 @@ public class Session {
 
             // signal to customer the amount owed
             System.out.printf("The amount owed is: %d\n", record.getAmountOwed());
+		
+	    if (paymentType == TransactionRecord.COIN) {
+                // set flag and amount in PayWithCoins class
+                PayWithCoins.setCustomerSelectedPayCoins(true, (double) record.getTotalPrice());
+
+                // signal to customer they can start entering coins
+                System.out.println("Please insert coins");
+            }
             
             //determines if the payment type is by card
             if (paymentType == TransactionRecord.CREDIT ||paymentType == TransactionRecord.DEBIT) {
