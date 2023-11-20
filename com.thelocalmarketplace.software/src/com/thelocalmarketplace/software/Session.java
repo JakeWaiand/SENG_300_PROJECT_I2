@@ -177,8 +177,10 @@ public class Session {
             // signal to customer the amount owed
             System.out.printf("The amount owed is: %d\n", record.getAmountOwed());
             
+            //determines if the payment type is by card
             if (paymentType == TransactionRecord.CREDIT ||paymentType == TransactionRecord.DEBIT) {
             	station.cardReader.register(instance);
+            	//checks for failure from the card reader to support bronze and silver implementations
             	try {
             		station.cardReader.swipe(card);
             	}catch(MagneticStripeFailureException e) {
@@ -186,12 +188,17 @@ public class Session {
             	}
             	if (instance.getDataReadStatus()) {
             		long updatedAmount = instance.paymentType(card, cardIssuer, totalPrice, record);
+            		//updates amount owed on the record and displays it
             		record.setAmountOwed(updatedAmount);
+            		System.out.printf("Amount owed: %d\n", updatedAmount);
+            		//if the new amount owed is 0 transaction is complete and receipt is called to be printed
             		if (updatedAmount == 0) {
-            			printReceipt();           		
+            			printReceipt();
+            			System.out.print("Please Take Your Receipt");
+            		//if there is a remaining balance, the customer will be notified and told to pay the remaining balance
             		}else {
             			System.out.printf("Please Select Paymond Method. Pending Amount is: %d\n", updatedAmount);
-                		//should I add scanner here ?  call the method again?
+                		
                 	
             		}
             	}
@@ -200,11 +207,7 @@ public class Session {
 
         }
         // else, ignore pay request
-        
-       /*
-        * TODO:
-        * -check precondition
-        * */
+     
         
     }
     
