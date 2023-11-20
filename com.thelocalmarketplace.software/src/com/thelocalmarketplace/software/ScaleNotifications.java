@@ -1,3 +1,10 @@
+/*
+ * TODO: add everyone's name + UCID
+ * 
+ * Description: scale notifications class implements an electronic scale observer.
+ * i.e. any events related to the electronic scale gets notified here.
+ */
+
 package com.thelocalmarketplace.software;
 
 import com.jjjwelectronics.IDevice;
