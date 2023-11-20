@@ -25,7 +25,7 @@ public class TransactionRecord {
 
     // default variables
     private static long totalPrice = 0;
-    private static ArrayList<BarcodedProduct> bill;
+    private static ArrayList<BarcodedProduct> bill = new ArrayList<BarcodedProduct>();
     private static long holdNumber = 0;
     private static int paymentType = NONE;
     private static BigDecimal amountOwed = new BigDecimal("0");
