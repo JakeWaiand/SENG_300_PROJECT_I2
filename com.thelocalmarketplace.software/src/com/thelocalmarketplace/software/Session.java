@@ -1,10 +1,50 @@
-package com.thelocalmarketplace.software;
+/*
+ * TODO: add everyone's name + UCID
+ * 
+ * Description: session class keeps tract of session and checkout state.
+ * Also tracks the total expected weight and bagging options (add bags, not not bag).
+ * 
+ * Since no GUI currently implemented, the following methods are used to simulate 
+ * customer interacting with the GUI:
+ * - startSession() 
+ * - startRemoving()
+ * - pay()
+ * - startAddBags()
+ * - doNotBag()
+ * 
+ * Session state summary:
+ * - SESSION_INACTIVE = 0 	represents when the session hasn't started (initial state)
+ * - BILL_EMPTY = 1 		represents when session is started but no items added (no action in progress)
+ * - BILL_NOT_EMPTY = 2		represents when session is started and items exist on the bill (no action in progress)
+ * - ADDING_ITEM = 3		represents when a customer is in the process of adding an item
+ * - REMOVING_ITEM = 4		represents when a customer is in the process of removing an item
+ * - PAY_FOR_BILL = 5		represents when a customer is in the process of paying for the bill
+ * - PRINTING_RECEIPT = 6	represents when a the bill has been paid and the receipt is printing
+ * 
+ * Transition table format:
+ * states       |methods  |
+ * ------------------------
+ * current state|end state|
+ * 
+ * i.e. if you run a method in the current state, it tells you what state you end in
+ * 
+ * state|startSession|startAdding|doneAdding|startRemoving|doneRemoving|pay|printReceipt|endSession|
+ * -------------------------------------------------------------------------------------------------
+ * 0 	|1           |0          |0         |0            |0           |0  |0           |0         |
+ * 1 	|1           |3          |1         |1            |1           |1  |1           |1         |
+ * 2 	|2           |3          |3         |4            |2           |5  |2           |2         |
+ * 3 	|3           |3          |2         |3            |3           |3  |3           |3         |
+ * 4 	|4           |4          |4         |4            |1 or 2      |4  |4           |4         |
+ * 5 	|5           |5          |5         |5            |5           |5  |6           |5         |
+ * 6 	|6           |6          |6         |6            |6           |6  |6           |0         |
+ */
 
-import java.util.ArrayList;
+package com.thelocalmarketplace.software;
 
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Mass.MassDifference;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
+import java.math.BigDecimal;
 
 public class Session {
 
@@ -15,6 +55,7 @@ public class Session {
     public static final int ADDING_ITEM = 3;
     public static final int REMOVING_ITEM = 4;
     public static final int PAY_FOR_BILL = 5;
+    public static final int PRINTING_RECEIPT = 6;
 
     // constants for checkout state
     public static final boolean LOCK = true;
@@ -57,7 +98,7 @@ public class Session {
 
     // since no GUI, method simulates when a customer chooses to remove an item
     public void startRemoving(BarcodedProduct product) {
-        if (sessionState == BILL_NOT_EMPTY) {
+        if (sessionState == BILL_NOT_EMPTY && checkoutState == UNLOCK) {
             sessionState = REMOVING_ITEM;
             checkoutState = LOCK;
 
@@ -87,8 +128,9 @@ public class Session {
         // else, do not transition
     }
 
+    // since no GUI, method simulates when a customer chooses to pay for bill	
     public void pay(long totalPrice, int paymentType) {
-        if (sessionState == BILL_NOT_EMPTY) {
+        if (sessionState == BILL_NOT_EMPTY && checkoutState == UNLOCK) {
             sessionState = PAY_FOR_BILL;
 
             // set payment type
@@ -123,9 +165,16 @@ public class Session {
         // else, ignore pay request
     }
 
+    public void printReceipt() {
+	if (sessionState == PAY_FOR_BILL && record.getAmountOwed() == new BigDecimal("0")) {
+		sessionState = PRINTING_RECEIPT;
+		}
+		// else, do not transition
+    }
 
     public void endSession() {
-        if (sessionState == PAY_FOR_BILL) {
+    	// assuming a receipt is printed for every session 
+        if (sessionState == PRINTING_RECEIPT) {
             sessionState = SESSION_INACTIVE;
             checkoutState = LOCK;
 
@@ -156,6 +205,11 @@ public class Session {
         totalExpectedWeight = productExpectedWeight.sum(totalExpectedWeight);
     }
 
+    // updates total expected weight to the given mass
+    public void updateTotalExpectedWeight(Mass mass) {
+    	totalExpectedWeight = mass;
+    }
+    
     // methods for dealing with bagging options
 
     // since no GUI, method simulates when a customer chooses "add own bags"
@@ -206,6 +260,7 @@ public class Session {
 
             // re-allow customer interaction
             sessionState = BILL_NOT_EMPTY;
+            checkoutState = UNLOCK;
         }
         // else, do nothing
 

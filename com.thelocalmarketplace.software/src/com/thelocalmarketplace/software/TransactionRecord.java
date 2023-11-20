@@ -1,3 +1,10 @@
+/*
+ * TODO: add everyone's name + UCID
+ * 
+ * Description: transaction record class keeps tract of everything on the bill.
+ * 
+ */
+
 package com.thelocalmarketplace.software;
 
 import java.math.BigDecimal;
