@@ -1,9 +1,7 @@
 package com.thelocalmarketplace.software;
 
 import java.math.BigDecimal;
-import com.tdc.IComponent;
 import com.tdc.IComponentObserver;
-import com.tdc.coin.CoinValidator;
 import com.tdc.coin.CoinValidatorObserver;
 import com.thelocalmarketplace.hardware.*;
 
@@ -11,47 +9,24 @@ public class PayWithCoins implements CoinValidatorObserver {
     private SelfCheckoutStation sm;
     private boolean customerSelectedPayCoins = false;
     private double amountOwed = 0;
+    private String stationType;
 
-    public PayWithCoins(SelfCheckoutStation sm) {
+    public PayWithCoins(SelfCheckoutStation sm, String stationType) {
         this.sm = sm;
+        this.stationType = stationType;
         this.sm.coinValidator.attach(this);
     }
 
     @Override
-    public void enabled(IComponent<? extends IComponentObserver> component) {
-     
-    }
-
-    @Override
-    public void disabled(IComponent<? extends IComponentObserver> component) {
-      
-    }
-
-    @Override
-    public void turnedOn(IComponent<? extends IComponentObserver> component) {
-        
-    }
-
-    @Override
-    public void turnedOff(IComponent<? extends IComponentObserver> component) {
-     
-    }
-
-    @Override
     public void validCoinDetected(CoinValidator validator, BigDecimal value) {
-        try {
-            if (amountOwed > 0 && customerSelectedPayCoins && State.isSession()) {
-                amountOwed -= value.doubleValue();
-                displayMessageToScreen(String.format("Amount Due: $%.2f", Math.max(amountOwed, 0)));
-            }
-
-            if (amountOwed <= 0) {
-                dispenseChange();
-                printReceipt();
-                resetPayment();
-            }
-        } catch (Exception e) {
-            handleException(e);
+        if (amountOwed > 0 && customerSelectedPayCoins && State.isSession()) {
+            amountOwed -= value.doubleValue();
+            displayMessageToScreen(String.format("Amount Due: $%.2f", Math.max(amountOwed, 0)));
+        }
+        if (amountOwed <= 0) {
+            dispenseChange();
+            printReceipt();
+            resetPayment();
         }
     }
 
@@ -61,22 +36,26 @@ public class PayWithCoins implements CoinValidatorObserver {
     }
 
     private void dispenseChange() {
-        
         double change = Math.abs(amountOwed);
         if (change > 0) {
+            switch (stationType) {
+                case "Gold":
+                    
+                    break;
+                case "Silver":
+                    
+                    break;
+                case "Bronze":
+                    
+                    break;
+            }
             displayMessageToScreen(String.format("Dispensing change: $%.2f", change));
-            
         }
     }
 
     private void resetPayment() {
         customerSelectedPayCoins = false;
         amountOwed = 0;
-    }
-
-    private void handleException(Exception e) {
-     
-        displayMessageToScreen("An error occurred. Please try again.");
     }
 
     public void displayMessageToScreen(String message) {
