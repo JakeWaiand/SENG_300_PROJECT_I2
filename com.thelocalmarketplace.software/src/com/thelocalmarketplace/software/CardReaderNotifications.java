@@ -1,29 +1,22 @@
 package com.thelocalmarketplace.software;
 
-import java.io.IOException;
+
 import java.util.Scanner;
 
 import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.card.Card.CardData;
-import com.jjjwelectronics.card.CardReaderBronze;
-import com.jjjwelectronics.card.CardReaderGold;
 import com.jjjwelectronics.card.CardReaderListener;
-import com.jjjwelectronics.card.CardReaderSilver;
-import com.jjjwelectronics.card.MagneticStripeFailureException;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
 public class CardReaderNotifications implements CardReaderListener {
-	private CardReaderGold goldReader = new CardReaderGold();
-	private CardReaderSilver silverReader = new CardReaderSilver();
-	private CardReaderBronze bronzeReader = new CardReaderBronze();
 	
 	private boolean cardDataRead = false;
 	
 	private Scanner scanner = new Scanner(System.in);
 	
-	private long paymentType(Card card, CardIssuer cardIssuer, long totalPrice, TransactionRecord record) {
+	public long paymentType(Card card, CardIssuer cardIssuer, long totalPrice, TransactionRecord record) {
 		if(card.kind == "Visa" || card.kind == "Mastercard"||card.kind == "Debit") {
 			
 			System.out.print("Please enter your signature below: ");
@@ -69,56 +62,7 @@ public class CardReaderNotifications implements CardReaderListener {
 		
 	}
 	
-	
-	
-	public long cardSwipeGold(Card card, CardIssuer cardIssuer, long totalPrice, TransactionRecord record) throws IOException {
-		goldReader.register(this);
-		goldReader.swipe(card);
-		if (cardDataRead) {
-			long updatedAmount = paymentType(card, cardIssuer, totalPrice, record);
-			return updatedAmount;
-		}else {
-			return totalPrice;
-			//should never happen
-		}
-		
-	
-		
-	}
-    public long cardSwipeSilver(Card card, CardIssuer cardIssuer, long totalPrice, TransactionRecord record) throws IOException {
-    	silverReader.register(this);
-    	try {
-    		silverReader.swipe(card);
-    	}catch (MagneticStripeFailureException e) {
-    		System.out.print("Card Swipe Failed. Please Try Again.");
-    		return totalPrice;
-    	}
-		if (cardDataRead) {
-			long updatedAmount = paymentType(card, cardIssuer, totalPrice, record);
-			return updatedAmount;
-		}else {
-			return totalPrice;
-			//should never happen
-		}
-		
-	}
-    public long cardSwipeBronze(Card card, CardIssuer cardIssuer, long totalPrice, TransactionRecord record) throws IOException {
-    	bronzeReader.register(this);
-    	try {
-    		bronzeReader.swipe(card);
-    	}catch (MagneticStripeFailureException e) {
-    		System.out.print("Card Swipe Failed. Please Try Again.");
-    		return totalPrice;
-    	}
-		if (cardDataRead) {
-			long updatedAmount = paymentType(card, cardIssuer, totalPrice, record);
-			return updatedAmount;
-		}else {
-			return totalPrice;
-			//should never happen
-		}
-		
-	}
+
 
 	@Override
 	public void aDeviceHasBeenEnabled(IDevice<? extends IDeviceListener> device) {
@@ -163,6 +107,10 @@ public class CardReaderNotifications implements CardReaderListener {
 	
 	public void transactionUnsuccessful() {
 		
+	}
+	
+	public boolean getDataReadStatus() {
+		return this.cardDataRead;
 	}
 	
 	

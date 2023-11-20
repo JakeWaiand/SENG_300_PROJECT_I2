@@ -44,6 +44,8 @@ package com.thelocalmarketplace.software;
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Mass.MassDifference;
 import com.jjjwelectronics.card.Card;
+import com.jjjwelectronics.card.MagneticStripeFailureException;
+import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
@@ -72,14 +74,9 @@ public class Session {
     private static boolean checkoutState = LOCK;
     private static Mass totalExpectedWeight = Mass.ZERO;
     private static boolean addBagsSelected = false; 		// flag for "add own bags" feature
-    
-    // hardware type constants
-    private static final int BRONZE = 1;
-    private static final int SILVER = 2;
-    private static final int GOLD = 3;
-    
+
     //initialize 
-    private static int hardwareClass;
+    private AbstractSelfCheckoutStation station;
 
     // instantiate classes
     TransactionRecord record = new TransactionRecord();
@@ -181,38 +178,24 @@ public class Session {
             System.out.printf("The amount owed is: %d\n", record.getAmountOwed());
             
             if (paymentType == TransactionRecord.CREDIT ||paymentType == TransactionRecord.DEBIT) {
-            	if (hardwareClass == GOLD) {
-            		long updatedAmount = instance.cardSwipeGold(card, cardIssuer, totalPrice, record);
-                	System.out.printf("The amount due is: %d\n", updatedAmount);
-                	if (updatedAmount == 0) {
-                		printReceipt();
-                	}else {
-                		System.out.printf("Please Select Paymond Method. Pending Amount is: %d\n", updatedAmount);
-                		record.setAmountOwed(updatedAmount);
-                		//should I add scanner here ?  call the method again?
-                	}
-            	}else if (hardwareClass == SILVER) {
-            		long updatedAmount = instance.cardSwipeSilver(card, cardIssuer, totalPrice, record);
-                	System.out.printf("The amount due is: %d\n", updatedAmount);
-                	if (updatedAmount == 0) {
-                		printReceipt();
-                	}else {
-                		System.out.printf("Please Select Paymond Method. Pending Amount is: %d\n", updatedAmount);
-                		record.setAmountOwed(updatedAmount);
-                		
-                	}
-            	}else if (hardwareClass == BRONZE) {
-            		long updatedAmount = instance.cardSwipeBronze(card, cardIssuer, totalPrice, record);
-                	System.out.printf("The amount due is: %d\n", updatedAmount);
-                	if (updatedAmount == 0) {
-                		printReceipt();
-                	}else {
-                		System.out.printf("Please Select Paymond Method. Pending Amount is: %d\n", updatedAmount);
-                		record.setAmountOwed(updatedAmount);
-                		
-                	}
+            	station.cardReader.register(instance);
+            	try {
+            		station.cardReader.swipe(card);
+            	}catch(MagneticStripeFailureException e) {
+            		System.out.print("Card Swipe Failed. Please Try Again.");
             	}
-            	
+            	if (instance.getDataReadStatus()) {
+            		long updatedAmount = instance.paymentType(card, cardIssuer, totalPrice, record);
+            		record.setAmountOwed(updatedAmount);
+            		if (updatedAmount == 0) {
+            			printReceipt();           		
+            		}else {
+            			System.out.printf("Please Select Paymond Method. Pending Amount is: %d\n", updatedAmount);
+                		//should I add scanner here ?  call the method again?
+                	
+            		}
+            	}
+            		
             }
 
         }
@@ -327,16 +310,8 @@ public class Session {
 
     }
     
-    public Session(int hardwareGrade) {
-    	if (hardwareGrade == 1) {
-    		hardwareClass = BRONZE;
-    	}else if(hardwareGrade == 2) {
-    		hardwareClass = SILVER;
-    	}else if(hardwareGrade == 3) {
-    		hardwareClass = GOLD;
-    	}else {
-    		throw new InvalidArgumentSimulationException("Invalid Grade Integer Provided");
-    	}
+    public Session(AbstractSelfCheckoutStation station) {
+    	this.station = station;
     }
 
     // getter methods
