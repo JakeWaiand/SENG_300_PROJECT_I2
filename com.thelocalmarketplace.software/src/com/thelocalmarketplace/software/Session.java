@@ -47,6 +47,8 @@ import com.jjjwelectronics.card.Card;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
+import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 
@@ -70,6 +72,14 @@ public class Session {
     private static boolean checkoutState = LOCK;
     private static Mass totalExpectedWeight = Mass.ZERO;
     private static boolean addBagsSelected = false; 		// flag for "add own bags" feature
+    
+    // hardware type constants
+    private static final int BRONZE = 1;
+    private static final int SILVER = 2;
+    private static final int GOLD = 3;
+    
+    //initialize 
+    private static int hardwareClass;
 
     // instantiate classes
     TransactionRecord record = new TransactionRecord();
@@ -171,15 +181,38 @@ public class Session {
             System.out.printf("The amount owed is: %d\n", record.getAmountOwed());
             
             if (paymentType == TransactionRecord.CREDIT ||paymentType == TransactionRecord.DEBIT) {
-            	long updatedAmount = instance.cardSwipeGold(card, cardIssuer, totalPrice);
-            	System.out.printf("The amount due is: %d\n", updatedAmount);
-            	if (updatedAmount == 0) {
-            		printReceipt();
-            	}else {
-            		System.out.printf("Please Select Paymond Method. Pending Amount is: %d\n", updatedAmount);
-            		record.setAmountOwed(updatedAmount);
-            		//should I add scanner here ?  call the method again?
+            	if (hardwareClass == GOLD) {
+            		long updatedAmount = instance.cardSwipeGold(card, cardIssuer, totalPrice, record);
+                	System.out.printf("The amount due is: %d\n", updatedAmount);
+                	if (updatedAmount == 0) {
+                		printReceipt();
+                	}else {
+                		System.out.printf("Please Select Paymond Method. Pending Amount is: %d\n", updatedAmount);
+                		record.setAmountOwed(updatedAmount);
+                		//should I add scanner here ?  call the method again?
+                	}
+            	}else if (hardwareClass == SILVER) {
+            		long updatedAmount = instance.cardSwipeSilver(card, cardIssuer, totalPrice, record);
+                	System.out.printf("The amount due is: %d\n", updatedAmount);
+                	if (updatedAmount == 0) {
+                		printReceipt();
+                	}else {
+                		System.out.printf("Please Select Paymond Method. Pending Amount is: %d\n", updatedAmount);
+                		record.setAmountOwed(updatedAmount);
+                		
+                	}
+            	}else if (hardwareClass == BRONZE) {
+            		long updatedAmount = instance.cardSwipeBronze(card, cardIssuer, totalPrice, record);
+                	System.out.printf("The amount due is: %d\n", updatedAmount);
+                	if (updatedAmount == 0) {
+                		printReceipt();
+                	}else {
+                		System.out.printf("Please Select Paymond Method. Pending Amount is: %d\n", updatedAmount);
+                		record.setAmountOwed(updatedAmount);
+                		
+                	}
             	}
+            	
             }
 
         }
@@ -187,12 +220,11 @@ public class Session {
         
        /*
         * TODO:
-        * -add bronze and silver implementations
-        * -record parameter
         * -check precondition
         * */
         
     }
+    
 
     public void printReceipt() {
 	if (sessionState == PAY_FOR_BILL && record.getAmountOwed() == new BigDecimal("0")) {
@@ -293,6 +325,18 @@ public class Session {
         }
         // else, do nothing
 
+    }
+    
+    public Session(int hardwareGrade) {
+    	if (hardwareGrade == 1) {
+    		hardwareClass = BRONZE;
+    	}else if(hardwareGrade == 2) {
+    		hardwareClass = SILVER;
+    	}else if(hardwareGrade == 3) {
+    		hardwareClass = GOLD;
+    	}else {
+    		throw new InvalidArgumentSimulationException("Invalid Grade Integer Provided");
+    	}
     }
 
     // getter methods
