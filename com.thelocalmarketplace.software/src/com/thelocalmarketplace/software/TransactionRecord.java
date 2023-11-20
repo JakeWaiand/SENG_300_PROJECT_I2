@@ -28,6 +28,10 @@ public class TransactionRecord {
         totalPrice += product.getPrice();
     }
 
+    public void removeFromTotalPrice(BarcodedProduct product) {
+        totalPrice -= product.getPrice();
+    }
+    
     public void clearTotalPrice() {
         totalPrice = 0;
     }
