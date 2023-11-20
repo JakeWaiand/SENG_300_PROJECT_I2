@@ -22,7 +22,7 @@ public class CardReaderNotifications implements CardReaderListener {
 	
 	private static Scanner scanner = new Scanner(System.in);
 	
-	public static long paymentType(Card card, CardIssuer cardIssuer, long totalPrice) {
+	private static long paymentType(Card card, CardIssuer cardIssuer, long totalPrice) {
 		if(card.kind == "Visa" || card.kind == "Mastercard"||card.kind == "Debit") {
 			System.out.print("Please enter your signature below: ");
 			String signature = scanner.nextLine();
@@ -51,6 +51,7 @@ public class CardReaderNotifications implements CardReaderListener {
 	}
 	
 	public long cardSwipeGold(Card card, CardIssuer cardIssuer, long totalPrice) throws IOException {
+		goldReader.register(this);
 		goldReader.swipe(card);
 		if (cardDataRead) {
 			long updatedAmount = paymentType(card, cardIssuer, totalPrice);
@@ -61,6 +62,7 @@ public class CardReaderNotifications implements CardReaderListener {
 		
 	}
     public long cardSwipeSilver(Card card, CardIssuer cardIssuer, long totalPrice) throws IOException {
+    	silverReader.register(this);
     	silverReader.swipe(card);
 		if (cardDataRead) {
 			long updatedAmount = paymentType(card, cardIssuer, totalPrice);
@@ -71,6 +73,7 @@ public class CardReaderNotifications implements CardReaderListener {
 		
 	}
     public long cardSwipeBronze(Card card, CardIssuer cardIssuer, long totalPrice) throws IOException {
+    	bronzeReader.register(this);
     	bronzeReader.swipe(card);
 		if (cardDataRead) {
 			long updatedAmount = paymentType(card, cardIssuer, totalPrice);
