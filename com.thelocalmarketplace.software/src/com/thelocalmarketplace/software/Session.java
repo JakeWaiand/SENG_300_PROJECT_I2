@@ -55,21 +55,29 @@ public class Session {
         // else, do not transition
     }
 
-    // since no GUI, method simulates when a customer chooses to remove an item
+    // since no GUI, method simulates when a customer chooses to remove a specific item
     public void startRemoving(BarcodedProduct product) {
         if (sessionState == BILL_NOT_EMPTY) {
             sessionState = REMOVING_ITEM;
             checkoutState = LOCK;
-
+            
+            // possible error/bug could be from product to remove not being found in database
+            removeFromTotalExpectedWeight(product);
+            
+            // signals to customer to remove item from bagging area <--- may need GUI
+            // waits for the scale to signal the weight is removed <--- an if/else or switch statement for removed or not
+            // scale signals that the weight has been removed <--- receives input
+            
+            // update to account for the new total weight with product removed
+            record.removeFromTotalPrice(product);
+            record.removeFromBill(product);
+            // signal to customer item was successfully removed <--- may need GUI
+            
+            
             /*
              * TODO: add "remove item" logic
-             * - remove product from bill
-             * - remove price from total
-             * - remove expected weight from total
-             * - signal to customer item was successfully removed
-             * - signal to customer to remove item from bagging area
              * - (logic continues in scale notification class)
-             *
+             * -  ^ not yet created
              */
 
         }
@@ -148,7 +156,9 @@ public class Session {
         checkoutState = UNLOCK;
     }
     
-    // method that modify expected weight
+    // methods that deal with changing the expected weight
+    
+    // method that adds to the expected weight
     public void addToTotalExpectedWeight(BarcodedProduct product) {
         // convert product weight of type double into Mass type
         Mass productExpectedWeight = new Mass(product.getExpectedWeight());
@@ -156,6 +166,15 @@ public class Session {
         totalExpectedWeight = productExpectedWeight.sum(totalExpectedWeight);
     }
 
+    // method that removes product weight from the expected weight
+    public void removeFromTotalExpectedWeight(BarcodedProduct product) {
+        // convert product weight of type double into Mass type
+        Mass productExpectedWeight = new Mass(product.getExpectedWeight());
+        
+        MassDifference weightDifference = totalExpectedWeight.difference(productExpectedWeight);
+        totalExpectedWeight = weightDifference.abs();
+    }
+    
     // methods for dealing with bagging options
 
     // since no GUI, method simulates when a customer chooses "add own bags"
