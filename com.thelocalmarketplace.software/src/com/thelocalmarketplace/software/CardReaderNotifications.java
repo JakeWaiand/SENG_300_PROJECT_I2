@@ -1,15 +1,24 @@
 package com.thelocalmarketplace.software;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 import com.jjjwelectronics.IDevice;
 import com.jjjwelectronics.IDeviceListener;
 import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.card.Card.CardData;
+import com.jjjwelectronics.card.CardReaderBronze;
+import com.jjjwelectronics.card.CardReaderGold;
 import com.jjjwelectronics.card.CardReaderListener;
+import com.jjjwelectronics.card.CardReaderSilver;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
 
 public class CardReaderNotifications implements CardReaderListener {
+	private CardReaderGold goldReader = new CardReaderGold();
+	private CardReaderSilver silverReader = new CardReaderSilver();
+	private CardReaderBronze bronzeReader = new CardReaderBronze();
+	
+	private boolean cardDataRead = false;
 	
 	private static Scanner scanner = new Scanner(System.in);
 	
@@ -38,6 +47,37 @@ public class CardReaderNotifications implements CardReaderListener {
 			return -1;
 		}
 	
+		
+	}
+	
+	public long cardSwipeGold(Card card, CardIssuer cardIssuer, long totalPrice) throws IOException {
+		goldReader.swipe(card);
+		if (cardDataRead) {
+			long updatedAmount = paymentType(card, cardIssuer, totalPrice);
+			return updatedAmount;
+		}else {
+			return totalPrice;
+		}
+		
+	}
+    public long cardSwipeSilver(Card card, CardIssuer cardIssuer, long totalPrice) throws IOException {
+    	silverReader.swipe(card);
+		if (cardDataRead) {
+			long updatedAmount = paymentType(card, cardIssuer, totalPrice);
+			return updatedAmount;
+		}else {
+			return totalPrice;
+		}
+		
+	}
+    public long cardSwipeBronze(Card card, CardIssuer cardIssuer, long totalPrice) throws IOException {
+    	bronzeReader.swipe(card);
+		if (cardDataRead) {
+			long updatedAmount = paymentType(card, cardIssuer, totalPrice);
+			return updatedAmount;
+		}else {
+			return totalPrice;
+		}
 		
 	}
 
@@ -74,6 +114,7 @@ public class CardReaderNotifications implements CardReaderListener {
 	@Override
 	public void theDataFromACardHasBeenRead(CardData data) {
 		// TODO Auto-generated method stub
+		cardDataRead = true;
 		
 	}
 	
