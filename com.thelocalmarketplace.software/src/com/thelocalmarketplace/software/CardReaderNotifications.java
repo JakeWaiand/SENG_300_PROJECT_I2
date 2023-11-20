@@ -58,7 +58,7 @@ public class CardReaderNotifications implements CardReaderListener {
 		}else {
 			return -1;
 		}
-	//
+	
 		
 	}
 	
