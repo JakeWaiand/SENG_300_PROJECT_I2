@@ -22,9 +22,9 @@
  * - PRINTING_RECEIPT = 6	represents when a the bill has been paid and the receipt is printing
  * 
  * Transition table format:
- * 	states		 |methods  |
- * 	------------------------
- * 	current state|end state|
+ * states       |methods  |
+ * ------------------------
+ * current state|end state|
  * 
  * i.e. if you run a method in the current state, it tells you what state you end in
  * 
