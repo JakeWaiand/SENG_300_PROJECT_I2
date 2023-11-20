@@ -16,25 +16,54 @@ import com.jjjwelectronics.printer.ReceiptPrinterGold;
 import com.jjjwelectronics.printer.ReceiptPrinterSilver;
 
 import com.thelocalmarketplace.hardware.BarcodedProduct;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationBronze;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationSilver;
+import com.thelocalmarketplace.hardware.SelfCheckoutStationGold;
 
 import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
 import powerutility.NoPowerException;
 
-public class PrintReceipt<T> implements ReceiptPrinterListener{
+public class PrintReceipt implements ReceiptPrinterListener{
 
-	private ReceiptPrinterBronze printerB = new ReceiptPrinterBronze();
-	private ReceiptPrinterSilver printerS = new ReceiptPrinterSilver();
-	private ReceiptPrinterGold printerG = new ReceiptPrinterGold();
+	private final String BRONZE = "BRONZE";
+	private final String SILVER = "SILVER";
+	private final String GOLD = "GOLD";
 	
+	private SelfCheckoutStationBronze bronzeStation;
+	private SelfCheckoutStationSilver silverStation;
+	private SelfCheckoutStationGold goldStation;
+	
+	private String stationType = "";
+	
+	//constructors for each station type
+	
+	public PrintReceipt(SelfCheckoutStationBronze station) {
+		this.bronzeStation = station;
+		this.stationType = BRONZE;
+	}
+	
+	public PrintReceipt(SelfCheckoutStationSilver station) {
+		this.silverStation = station;
+		this.stationType = SILVER;
+	}
+	
+	public PrintReceipt(SelfCheckoutStationGold station) {
+		this.goldStation = station;
+		this.stationType = GOLD;
+	}
+	
+	//Simulates displaying a message to the customer
 	public void displayToCustomer(String message) {
 		System.out.println("CUSTOMER: "+message);
 	}
 	
+	//Simulates displaying a message to the attendant
 	public void displayToAttendant(String message) {
 		System.out.println("ATTENDANT: "+message);
 	}
 	
-	public void printReceipt(ArrayList<BarcodedProduct> bill, double amountPaid, String printerGrade) {
+	//Creates a receipt and prints it (Requires power)
+	public void printReceipt(ArrayList<BarcodedProduct> bill, double amountPaid) {
 		String receipt = "";
 		
 		//make receipt
@@ -56,45 +85,56 @@ public class PrintReceipt<T> implements ReceiptPrinterListener{
 		receipt += "\nTOTAL: " + amountPaid;
 		
 		//print receipt
-		switch(printerGrade) {
-			case "BRONZE":
-				try {
-					printerB.turnOn();
-					printerB.enable();
+		try {
+			switch(stationType) {
+				case BRONZE:
 					for (char c : receipt.toCharArray()) {
-						printerB.print(c);
+						bronzeStation.printer.print(c);
 					}
-					printerB.cutPaper();
-					System.out.println(printerB.removeReceipt());
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-				}
-			case "SILVER":
-				try {
-					printerS.turnOn();
-					printerS.enable();
+				case SILVER:
 					for (char c : receipt.toCharArray()) {
-						printerS.print(c);
+						silverStation.printer.print(c);
 					}
-					printerS.cutPaper();
-					System.out.println(printerS.removeReceipt());
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-				}
-			case "GOLD":
-				try {
-					printerG.turnOn();
-					printerG.enable();
+				case GOLD:
 					for (char c : receipt.toCharArray()) {
-						printerG.print(c);
+						goldStation.printer.print(c);
 					}
-					printerG.cutPaper();
-					System.out.println(printerG.removeReceipt());
-				} catch (Exception e) {
-					System.out.println(e.getMessage());
-				}
+			}
+		} catch(EmptyDevice e) {
+			System.out.println(e.getMessage());
+		} catch(OverloadedDevice e) {
+			System.out.println(e.getMessage());
 		}
-		System.out.println("");
+	}
+	
+	//Cuts receipt so it can be removable by user. (Requires power)
+	public void cutReceipt() {
+		try {
+			switch(stationType) {
+				case BRONZE:
+					bronzeStation.printer.cutPaper();
+				case SILVER:
+					silverStation.printer.cutPaper();
+				case GOLD:
+					goldStation.printer.cutPaper();
+			}
+		} catch (NoPowerException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	//Removes the receipt from the printer. Returns the receipt as a String.
+	public String removeReceipt() {
+		switch(stationType) {
+			case BRONZE:
+				return bronzeStation.printer.removeReceipt();
+			case SILVER:
+				return silverStation.printer.removeReceipt();
+			case GOLD:
+				return goldStation.printer.removeReceipt();
+			default:
+				return "";
+		}
 	}
 	
 	@Override
