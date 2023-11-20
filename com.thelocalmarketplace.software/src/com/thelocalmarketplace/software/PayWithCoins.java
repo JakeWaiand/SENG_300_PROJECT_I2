@@ -7,8 +7,8 @@ import com.thelocalmarketplace.hardware.*;
 
 public class PayWithCoins implements CoinValidatorObserver {
     private SelfCheckoutStation sm;
-    private boolean customerSelectedPayCoins = false;
-    private double amountOwed = 0;
+    private static boolean customerSelectedPayCoins = false;
+    private static double amountOwed = 0;
     private String stationType;
 
     public PayWithCoins(SelfCheckoutStation sm, String stationType) {
@@ -66,9 +66,9 @@ public class PayWithCoins implements CoinValidatorObserver {
         System.out.println("Receipt printed.");
     }
 
-    public void setCustomerSelectedPayCoins(boolean customerSelectedPayCoins, double amount) {
-        this.customerSelectedPayCoins = customerSelectedPayCoins;
-        this.amountOwed = Math.max(0, amount);
+    public static void setCustomerSelectedPayCoins(boolean selectedPayCoins, double amount) {
+        customerSelectedPayCoins = selectedPayCoins;
+        amountOwed = Math.max(0, amount);
     }
 
     public double getAmountOwed() {
