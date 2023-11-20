@@ -1,3 +1,43 @@
+/*
+ * TODO: add everyone's name + UCID
+ * 
+ * Description: session class keeps tract of session and checkout state.
+ * Also tracks the total expected weight and bagging options (add bags, not not bag).
+ * 
+ * Since no GUI currently implemented, the following methods are used to simulate 
+ * customer interacting with the GUI:
+ * - startSession() 
+ * - startRemoving()
+ * - pay()
+ * - startAddBags()
+ * - doNotBag()
+ * 
+ * Session state summary:
+ * - SESSION_INACTIVE = 0 	represents when the session hasn't started (initial state)
+ * - BILL_EMPTY = 1 		represents when session is started but no items added (no action in progress)
+ * - BILL_NOT_EMPTY = 2		represents when session is started and items exist on the bill (no action in progress)
+ * - ADDING_ITEM = 3		represents when a customer is in the process of adding an item
+ * - REMOVING_ITEM = 4		represents when a customer is in the process of removing an item
+ * - PAY_FOR_BILL = 5		represents when a customer is in the process of paying for the bill
+ * - PRINTING_RECEIPT = 6	represents when a the bill has been paid and the receipt is printing
+ * 
+ * Transition table format:
+ * 	states		 |methods  |
+ * 	------------------------
+ * 	current state|end state|
+ * 
+ * i.e. if you run a method in the current state, it tells you what state you end in
+ * 
+ * state|startSession|startAdding|doneAdding|startRemoving|doneRemoving|pay|printReceipt|endSession|
+ * -------------------------------------------------------------------------------------------------
+ * 0 	|1			 |0		   	 |0			|0			  |0   		   |0  |0			|0		   |
+ * 1 	|1 			 |3			 |1			|1			  |1   		   |1  |1			|1		   |
+ * 2 	|2			 |3			 |3			|4			  |2   		   |5  |2			|2		   |
+ * 3 	|3			 |3			 |2			|3			  |3   		   |3  |3			|3		   |
+ * 4 	|4			 |4			 |4			|4			  |1 or 2	   |4  |4			|4		   |
+ * 5 	|5			 |5			 |5			|5			  |5   		   |5  |6			|5		   |
+ * 6 	|6			 |6			 |6			|6			  |6   		   |6  |6			|0		   |
+ */
 package com.thelocalmarketplace.software;
 
 import java.util.ArrayList;
