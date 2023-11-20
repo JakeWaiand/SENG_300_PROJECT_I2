@@ -43,7 +43,11 @@ package com.thelocalmarketplace.software;
 
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Mass.MassDifference;
+import com.jjjwelectronics.card.Card;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
+import com.thelocalmarketplace.hardware.external.CardIssuer;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 
 public class Session {
@@ -69,6 +73,11 @@ public class Session {
 
     // instantiate classes
     TransactionRecord record = new TransactionRecord();
+    
+    private Card card;
+    private CardIssuer cardIssuer;
+    
+    private CardReaderNotifications instance = new CardReaderNotifications(); 
 
     // methods to transition between session states
 
@@ -129,7 +138,7 @@ public class Session {
     }
 
     // since no GUI, method simulates when a customer chooses to pay for bill	
-    public void pay(long totalPrice, int paymentType) {
+    public void pay(long totalPrice, int paymentType) throws IOException {
         if (sessionState == BILL_NOT_EMPTY && checkoutState == UNLOCK) {
             sessionState = PAY_FOR_BILL;
 
@@ -160,9 +169,29 @@ public class Session {
 
             // signal to customer the amount owed
             System.out.printf("The amount owed is: %d\n", record.getAmountOwed());
+            
+            if (paymentType == TransactionRecord.CREDIT ||paymentType == TransactionRecord.DEBIT) {
+            	long updatedAmount = instance.cardSwipeGold(card, cardIssuer, totalPrice);
+            	System.out.printf("The amount due is: %d\n", updatedAmount);
+            	if (updatedAmount == 0) {
+            		printReceipt();
+            	}else {
+            		System.out.printf("Please Select Paymond Method. Pending Amount is: %d\n", updatedAmount);
+            		record.setAmountOwed(updatedAmount);
+            		//should I add scanner here ?  call the method again?
+            	}
+            }
 
         }
         // else, ignore pay request
+        
+       /*
+        * TODO:
+        * -add bronze and silver implementations
+        * -record parameter
+        * -check precondition
+        * */
+        
     }
 
     public void printReceipt() {

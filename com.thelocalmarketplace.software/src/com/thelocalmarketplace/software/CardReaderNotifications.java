@@ -60,6 +60,11 @@ public class CardReaderNotifications implements CardReaderListener {
 			return totalPrice;
 		}
 		
+		/*
+		 * TODO:
+		 * -add record parameter to update hold number
+		 * */
+		
 	}
     public long cardSwipeSilver(Card card, CardIssuer cardIssuer, long totalPrice) throws IOException {
     	silverReader.register(this);
