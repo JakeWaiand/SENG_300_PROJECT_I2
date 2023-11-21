@@ -1,3 +1,10 @@
+/*
+ * TODO: add everyone's name + UCID
+ * 
+ * Description: transaction record class keeps tract of everything on the bill.
+ * 
+ */
+
 package com.thelocalmarketplace.software;
 
 import java.math.BigDecimal;
@@ -18,8 +25,8 @@ public class TransactionRecord {
 
     // default variables
     private static long totalPrice = 0;
-    private static ArrayList<BarcodedProduct> bill;
-    private static int holdNumber = 0;
+    private static ArrayList<BarcodedProduct> bill = new ArrayList<BarcodedProduct>();
+    private static long holdNumber = 0;
     private static int paymentType = NONE;
     private static BigDecimal amountOwed = new BigDecimal("0");
 
@@ -50,7 +57,7 @@ public class TransactionRecord {
     }
 
     // methods that modify hold number
-    public void updateHoldNumber(int number) {
+    public void updateHoldNumber(long number) {
         holdNumber = number;
     }
 
@@ -110,7 +117,7 @@ public class TransactionRecord {
         return bill.get(index);
     }
 
-    public int getHoldNumber() {
+    public long getHoldNumber() {
         return holdNumber;
     }
 

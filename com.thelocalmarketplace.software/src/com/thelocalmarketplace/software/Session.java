@@ -1,10 +1,58 @@
-package com.thelocalmarketplace.software;
+/*
+ * TODO: add everyone's name + UCID
+ * 
+ * Description: session class keeps tract of session and checkout state.
+ * Also tracks the total expected weight and bagging options (add bags, not not bag).
+ * 
+ * Since no GUI currently implemented, the following methods are used to simulate 
+ * customer interacting with the GUI:
+ * - startSession() 
+ * - startRemoving()
+ * - pay()
+ * - startAddBags()
+ * - doNotBag()
+ * 
+ * Session state summary:
+ * - SESSION_INACTIVE = 0 	represents when the session hasn't started (initial state)
+ * - BILL_EMPTY = 1 		represents when session is started but no items added (no action in progress)
+ * - BILL_NOT_EMPTY = 2		represents when session is started and items exist on the bill (no action in progress)
+ * - ADDING_ITEM = 3		represents when a customer is in the process of adding an item
+ * - REMOVING_ITEM = 4		represents when a customer is in the process of removing an item
+ * - PAY_FOR_BILL = 5		represents when a customer is in the process of paying for the bill
+ * - PRINTING_RECEIPT = 6	represents when a the bill has been paid and the receipt is printing
+ * 
+ * Transition table format:
+ * states       |methods  |
+ * ------------------------
+ * current state|end state|
+ * 
+ * i.e. if you run a method in the current state, it tells you what state you end in
+ * 
+ * state|startSession|startAdding|doneAdding|startRemoving|doneRemoving|pay|printReceipt|endSession|
+ * -------------------------------------------------------------------------------------------------
+ * 0 	|1           |0          |0         |0            |0           |0  |0           |0         |
+ * 1 	|1           |3          |1         |1            |1           |1  |1           |1         |
+ * 2 	|2           |3          |3         |4            |2           |5  |2           |2         |
+ * 3 	|3           |3          |2         |3            |3           |3  |3           |3         |
+ * 4 	|4           |4          |4         |4            |1 or 2      |4  |4           |4         |
+ * 5 	|5           |5          |5         |5            |5           |5  |6           |5         |
+ * 6 	|6           |6          |6         |6            |6           |6  |6           |0         |
+ */
 
-import java.util.ArrayList;
+package com.thelocalmarketplace.software;
 
 import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Mass.MassDifference;
+import com.jjjwelectronics.card.Card;
+import com.jjjwelectronics.card.MagneticStripeFailureException;
+import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
+import com.thelocalmarketplace.hardware.external.CardIssuer;
+
+import ca.ucalgary.seng300.simulation.InvalidArgumentSimulationException;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 public class Session {
 
@@ -15,6 +63,7 @@ public class Session {
     public static final int ADDING_ITEM = 3;
     public static final int REMOVING_ITEM = 4;
     public static final int PAY_FOR_BILL = 5;
+    public static final int PRINTING_RECEIPT = 6;
 
     // constants for checkout state
     public static final boolean LOCK = true;
@@ -26,8 +75,16 @@ public class Session {
     private static Mass totalExpectedWeight = Mass.ZERO;
     private static boolean addBagsSelected = false; 		// flag for "add own bags" feature
 
+    //initialize 
+    private AbstractSelfCheckoutStation station;
+
     // instantiate classes
     TransactionRecord record = new TransactionRecord();
+    
+    private Card card;
+    private CardIssuer cardIssuer;
+    
+    private CardReaderNotifications instance = new CardReaderNotifications(); 
 
     // methods to transition between session states
 
@@ -57,7 +114,7 @@ public class Session {
 
     // since no GUI, method simulates when a customer chooses to remove a specific item
     public void startRemoving(BarcodedProduct product) {
-        if (sessionState == BILL_NOT_EMPTY) {
+        if (sessionState == BILL_NOT_EMPTY && checkoutState == UNLOCK) {
             sessionState = REMOVING_ITEM;
             checkoutState = LOCK;
             
@@ -95,8 +152,9 @@ public class Session {
         // else, do not transition
     }
 
-    public void pay(long totalPrice, int paymentType) {
-        if (sessionState == BILL_NOT_EMPTY) {
+    // since no GUI, method simulates when a customer chooses to pay for bill	
+    public void pay(long totalPrice, int paymentType) throws IOException {
+        if (sessionState == BILL_NOT_EMPTY && checkoutState == UNLOCK) {
             sessionState = PAY_FOR_BILL;
 
             // set payment type
@@ -126,14 +184,60 @@ public class Session {
 
             // signal to customer the amount owed
             System.out.printf("The amount owed is: %d\n", record.getAmountOwed());
+		
+	    if (paymentType == TransactionRecord.COIN) {
+                // set flag and amount in PayWithCoins class
+                PayWithCoins.setCustomerSelectedPayCoins(true, (double) record.getTotalPrice());
+
+                // signal to customer they can start entering coins
+                System.out.println("Please insert coins");
+            }
+            
+            //determines if the payment type is by card
+            if (paymentType == TransactionRecord.CREDIT ||paymentType == TransactionRecord.DEBIT) {
+            	station.cardReader.register(instance);
+            	//checks for failure from the card reader to support bronze and silver implementations
+            	try {
+            		station.cardReader.swipe(card);
+            	}catch(MagneticStripeFailureException e) {
+            		System.out.print("Card Swipe Failed. Please Try Again.");
+            	}
+            	if (instance.getDataReadStatus()) {
+            		long updatedAmount = instance.paymentType(card, cardIssuer, totalPrice, record);
+            		//updates amount owed on the record and displays it
+            		record.setAmountOwed(updatedAmount);
+            		System.out.printf("Amount owed: %d\n", updatedAmount);
+            		//if the new amount owed is 0 transaction is complete and receipt is called to be printed
+            		if (updatedAmount == 0) {
+            			printReceipt();
+            			System.out.print("Please Take Your Receipt");
+            		//if there is a remaining balance, the customer will be notified and told to pay the remaining balance
+            		}else {
+            			System.out.printf("Please Select Paymond Method. Pending Amount is: %d\n", updatedAmount);
+                		
+                	
+            		}
+            	}
+            		
+            }
 
         }
         // else, ignore pay request
+     
+        
+    }
+    
+
+    public void printReceipt() {
+	if (sessionState == PAY_FOR_BILL && record.getAmountOwed() == new BigDecimal("0")) {
+		sessionState = PRINTING_RECEIPT;
+		}
+		// else, do not transition
     }
 
-
     public void endSession() {
-        if (sessionState == PAY_FOR_BILL) {
+    	// assuming a receipt is printed for every session 
+        if (sessionState == PRINTING_RECEIPT) {
             sessionState = SESSION_INACTIVE;
             checkoutState = LOCK;
 
@@ -173,6 +277,11 @@ public class Session {
         
         MassDifference weightDifference = totalExpectedWeight.difference(productExpectedWeight);
         totalExpectedWeight = weightDifference.abs();
+    }
+  
+    // updates total expected weight to the given mass
+    public void updateTotalExpectedWeight(Mass mass) {
+    	totalExpectedWeight = mass;
     }
     
     // methods for dealing with bagging options
@@ -225,9 +334,14 @@ public class Session {
 
             // re-allow customer interaction
             sessionState = BILL_NOT_EMPTY;
+            checkoutState = UNLOCK;
         }
         // else, do nothing
 
+    }
+    
+    public Session(AbstractSelfCheckoutStation station) {
+    	this.station = station;
     }
 
     // getter methods
@@ -235,6 +349,10 @@ public class Session {
         return sessionState;
     }
 
+    public boolean getCheckoutState() {
+        return checkoutState;
+    }
+    
     public Mass getTotalExpectedWeight() {
         return totalExpectedWeight;
     }
