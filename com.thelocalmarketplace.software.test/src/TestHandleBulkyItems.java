@@ -2,7 +2,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class TestPayWithCoin {
+public class TestHandleBulkyItems {
 
 	@Test
 	public void test() {
