@@ -8,7 +8,7 @@
  * Arumakankani Sayuru Silva - 30190402
  * Jake Waiand - 30179510
  *
- * Description: scanner notifiactions class implements a barcode scanner observer.
+ * Description: scanner notifications class implements a barcode scanner observer.
  * i.e. any events related to the barcode scanner gets notified here.
  *
  */
