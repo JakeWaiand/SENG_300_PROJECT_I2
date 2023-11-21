@@ -45,6 +45,9 @@ import com.jjjwelectronics.Mass;
 import com.jjjwelectronics.Mass.MassDifference;
 import com.jjjwelectronics.card.Card;
 import com.jjjwelectronics.card.MagneticStripeFailureException;
+import com.tdc.CashOverloadException;
+import com.tdc.DisabledException;
+import com.tdc.coin.Coin;
 import com.thelocalmarketplace.hardware.AbstractSelfCheckoutStation;
 import com.thelocalmarketplace.hardware.BarcodedProduct;
 import com.thelocalmarketplace.hardware.external.CardIssuer;
@@ -76,13 +79,15 @@ public class Session {
     private static boolean addBagsSelected = false; 		// flag for "add own bags" feature
 
     //initialize 
-    private AbstractSelfCheckoutStation station;
+    public AbstractSelfCheckoutStation station;
 
     // instantiate classes
     TransactionRecord record = new TransactionRecord();
+    private long amountDue;
     
     private Card card;
     private CardIssuer cardIssuer;
+    private Coin coin;
     
     private CardReaderNotifications instance = new CardReaderNotifications(); 
 
@@ -145,7 +150,7 @@ public class Session {
     }
 
     // since no GUI, method simulates when a customer chooses to pay for bill	
-    public void pay(long totalPrice, int paymentType) throws IOException {
+    public void pay(long totalPrice, int paymentType) throws IOException, DisabledException, CashOverloadException {
         if (sessionState == BILL_NOT_EMPTY && checkoutState == UNLOCK) {
             sessionState = PAY_FOR_BILL;
 
@@ -183,6 +188,13 @@ public class Session {
 
                 // signal to customer they can start entering coins
                 System.out.println("Please insert coins");
+                
+                PayWithCoins pwc = new PayWithCoins(this);
+                station.coinValidator.attach(pwc);
+                station.coinSlot.receive(coin);
+                station.coinValidator.receive(coin);
+                
+                
             }
             
             //determines if the payment type is by card
@@ -198,7 +210,9 @@ public class Session {
             		long updatedAmount = instance.paymentType(card, cardIssuer, totalPrice, record);
             		//updates amount owed on the record and displays it
             		record.setAmountOwed(updatedAmount);
+            		amountDue=updatedAmount;
             		System.out.printf("Amount owed: %d\n", updatedAmount);
+            		
             		//if the new amount owed is 0 transaction is complete and receipt is called to be printed
             		if (updatedAmount == 0) {
             			printReceipt();
@@ -221,8 +235,11 @@ public class Session {
     
 
     public void printReceipt() {
-	if (sessionState == PAY_FOR_BILL && record.getAmountOwed() == new BigDecimal("0")) {
+	if (sessionState == PAY_FOR_BILL && amountDue==0) {
 		sessionState = PRINTING_RECEIPT;
+		
+		
+		endSession();
 		}
 		// else, do not transition
     }
