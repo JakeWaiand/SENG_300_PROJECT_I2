@@ -40,41 +40,44 @@ public class AddOwnBag {
         }
     }
 
+    private void displayMessageToScreen(String message){
+        System.out.println(message);
+    }
+
     private void waitForCustomerInput() {
         // Implementation: Wait for customer to signal the desire to add their own bags
-        System.out.println("Waiting for customer input...");
+        displayMessageToScreen("Waiting for customer input...");
     }
 
     private void promptToAddBags() {
         // Implementation: Indicate to the customer that they should add their own bags now
-        System.out.println("Please add your bags now.");
+        displayMessageToScreen("Please add your bags now.");
     }
 
     private void confirmBagsAdded() {
         // Implementation: Wait for customer to signal that the bags have been added
-        System.out.println("Confirming bags have been added...");
+        displayMessageToScreen("Confirming bags have been added...");
     }
 
     private double checkWeightChange() {
         // Implementation: Interface with the weight sensor to detect weight change
         double detectedWeight = AddItemByBarcodeScanner.expectedWeight;
-        System.out.println("Detected weight change: " + detectedWeight + " kg");
         return detectedWeight;
     }
 
     private void bagsTooHeavyExtension(double weight) {
         // Handle the case where the added bags are too heavy
-        System.out.println("Bags are too heavy! Weight: " + weight + " kg");
+        displayMessageToScreen("Bags are too heavy! Weight: " + weight + " kg");
     }
 
     private void signalToContinue() {
         // Signal to the customer that they may now continue
-        System.out.println("All set! You may continue.");
+        displayMessageToScreen("All set! You may continue.");
     }
 
     private void handleExceptions(Exception e) {
         // Handle any exceptions
-        System.out.println("Exception occurred: " + e.getMessage());
+        displayMessageToScreen("Exception occurred: " + e.getMessage());
     }
 
     // Main method for demonstration purposes
