@@ -5,6 +5,7 @@
  * Lucas Carvalho - 30113633
  * Tiffany Hung - 10149429
  * Mann Patel - 30182233
+ * Sneh Patel - 30086076
  * Arumakankani Sayuru Silva - 30190402
  * Jake Waiand - 30179510
  *
